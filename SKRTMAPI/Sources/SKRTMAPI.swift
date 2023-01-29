@@ -189,7 +189,7 @@ public final class SKRTMAPI: RTMDelegate {
         var json: [String: Any] = [
             "envelope_id": envelopeId
         ]
-        if let message {
+        if let message = message {
             let payload: [String: Any] = [
                 "id": Date().slackTimestamp,
                 "type": "message",
