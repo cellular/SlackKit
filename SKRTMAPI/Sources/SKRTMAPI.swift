@@ -77,7 +77,7 @@ public final class SKRTMAPI: RTMDelegate {
     }
 
     public func connect() {
-        WebAPI.rtmConnect(
+        WebAPI.appsConnectionsOpen(
             token: token,
             batchPresenceAware: options.batchPresenceAware,
             presenceSub: options.presenceSub,
@@ -182,6 +182,31 @@ public final class SKRTMAPI: RTMDelegate {
         }
     }
 
+    private func sendAckowledge(envelopeId: String, channel: String? = nil, message: String? = nil) throws {
+        guard connected else {
+            throw SlackError.rtmConnectionError
+        }
+        var json: [String: Any] = [
+            "envelope_id": envelopeId
+        ]
+        if let message {
+            let payload: [String: Any] = [
+                "id": Date().slackTimestamp,
+                "type": "message",
+                "channel": channel,
+                "text": message
+            ]
+            json["payload"] = payload
+        }
+
+        guard let data = try? JSONSerialization.data(withJSONObject: json, options: []) else {
+            throw SlackError.clientJSONError
+        }
+        if let string = String(data: data, encoding: String.Encoding.utf8) {
+            try rtm.sendMessage(string)
+        }
+    }
+
     var isConnectionTimedOut: Bool {
         if let pong = pong, let ping = ping {
             if pong - ping < options.timeout {
@@ -222,6 +247,13 @@ public final class SKRTMAPI: RTMDelegate {
     internal func dispatch(_ anEvent: [String: Any]) {
         let event = Event(anEvent)
         let type = event.type ?? .unknown
+
+        print("dispatch \(type)")
+        guard type != .events_api else {
+            dispatchEventsApiEvent(anEvent)
+            return
+        }
+
         switch type {
         case .hello:
             connected = true
@@ -239,5 +271,38 @@ public final class SKRTMAPI: RTMDelegate {
             break
         }
         adapter?.notificationForEvent(event, type: type, instance: self)
+    }
+
+    private func dispatchEventsApiEvent(_ anEvent: [String: Any]) {
+//        debugAsJson(dict: anEvent)
+        let event = eventFromEventsApi(anEvent)
+        let type = event.type ?? .unknown
+        if let message = event.message {
+            print("type: \(type) \(message)")
+        }
+        adapter?.notificationForEvent(event, type: type, instance: self)
+
+        if let envelopeId = anEvent["envelope_id"] as? String {
+            do {
+                try sendAckowledge(envelopeId: envelopeId)
+            } catch {
+                print("\(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func eventFromEventsApi(_ anEvent: [String: Any]) -> Event {
+        let payload: [String: Any] = anEvent["payload"] as? [String: Any] ?? [:]
+        let event = payload["event"] as? [String: Any] ?? [:]
+        return Event(event)
+    }
+
+    private func debugAsJson(dict: [String: Any]) {
+        guard let data = try? JSONSerialization.data(withJSONObject: dict, options: []) else {
+            return
+        }
+        if let string = String(data: data, encoding: String.Encoding.utf8) {
+            print(string)
+        }
     }
 }

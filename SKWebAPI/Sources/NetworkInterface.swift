@@ -48,6 +48,7 @@ public struct NetworkInterface {
     internal func request(
         _ endpoint: Endpoint,
         accessToken: String,
+        httpMethod: String = "GET",
         parameters: [String: Any?],
         successClosure: @escaping ([String: Any]) -> Void,
         errorClosure: @escaping (SlackError) -> Void
@@ -63,6 +64,7 @@ public struct NetworkInterface {
         }
 
         var request = URLRequest(url: url)
+        request.httpMethod = httpMethod
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
         session.dataTask(with: request) {(data, response, publicError) in
