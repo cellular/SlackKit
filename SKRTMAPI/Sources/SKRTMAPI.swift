@@ -274,11 +274,11 @@ public final class SKRTMAPI: RTMDelegate {
     }
 
     private func dispatchEventsApiEvent(_ anEvent: [String: Any]) {
-//        debugAsJson(dict: anEvent)
         let event = eventFromEventsApi(anEvent)
         let type = event.type ?? .unknown
         if let message = event.message {
             print("type: \(type) \(message)")
+            debugAsJson(message)
         }
         adapter?.notificationForEvent(event, type: type, instance: self)
 
