@@ -33,6 +33,7 @@ public struct RTMOptions {
     public let pingInterval: TimeInterval
     public let timeout: TimeInterval
     public let reconnect: Bool
+    public let connectWithSocketMode: Bool
 
     public init(
         batchPresenceAware: Bool = false,
@@ -43,7 +44,8 @@ public struct RTMOptions {
         simpleLatest: Bool = false,
         pingInterval: TimeInterval = 30,
         timeout: TimeInterval = 300,
-        reconnect: Bool = true
+        reconnect: Bool = true,
+        connectWithSocketMode: Bool = false
     ) {
         self.batchPresenceAware = batchPresenceAware
         self.mpimAware = mpimAware
@@ -54,5 +56,6 @@ public struct RTMOptions {
         self.pingInterval = pingInterval
         self.timeout = timeout
         self.reconnect = reconnect
+        self.connectWithSocketMode = connectWithSocketMode
     }
 }

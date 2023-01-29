@@ -88,7 +88,27 @@ extension WebAPI {
         }) {(error) in
             failure?(error)
         }
+    }
+}
 
+extension WebAPI {
+    public static func appsConnectionsOpen(
+        token: String,
+        batchPresenceAware: Bool = false,
+        presenceSub: Bool = false,
+        success: ((_ response: [String: Any]) -> Void)?,
+        failure: FailureClosure?
+    ) {
+        let parameters: [String: Any?] =
+            [
+                "batch_presence_aware": batchPresenceAware,
+                "presence_sub": presenceSub
+            ]
+        NetworkInterface().request(.appsConnectionsOpen, accessToken: token, httpMethod: "POST", parameters: parameters, successClosure: {(response) in
+            success?(response)
+        }) {(error) in
+            failure?(error)
+        }
     }
 }
 

@@ -44,7 +44,7 @@ public class VaporEngineRTM: RTMWebSocket {
         }
         
         futureWebsocket = WebSocketClient(eventLoopGroupProvider: .shared(eventLoopGroup))
-            .connect(scheme: url.scheme ?? "ws", host: host, port: 8080, path: url.path, query: nil, headers: [:]) { [weak self] webSocket in
+            .connect(scheme: url.scheme ?? "wss", host: host, port: 443, path: url.path, query: url.query, headers: [:]) { [weak self] webSocket in
                 self?.didConnect(websocket: webSocket)
             }
     }

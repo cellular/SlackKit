@@ -94,6 +94,9 @@ public enum Endpoint: String {
     case usersSetActive = "users.setActive"
     case usersSetPresence = "users.setPresence"
 
+    // MARK: - Socket Mode
+    case appsConnectionsOpen = "apps.connections.open"
+
     // MARK: - Deprecated endpoints
     case channelsArchive = "channels.archive"
     case channelsCreate = "channels.create"

@@ -97,6 +97,8 @@ public enum EventType: String {
     case error = "error"
     case goodbye = "goodbye"
     case unknown = "unknown"
+
+    case events_api = "events_api"
 }
 
 public enum MessageSubtype: String {
@@ -192,7 +194,15 @@ public class Event {
         reaction = event["reaction"] as? String
         replyTo = event["reply_to"] as? Double
         reactions = event["reactions"] as? [[String: Any]]
-        bot = Bot(bot: event["bot"] as? [String: Any])
+        bot = {
+            if let bot = event["bot"] as? [String: Any] {
+                return Bot(bot: bot)
+            }
+            if let botProfile = event["bot_profile"] as? [String: Any] {
+                return Bot(bot: botProfile)
+            }
+            return nil
+        }()
         edited = Edited(edited:event["edited"] as? [String: Any])
         dndStatus = DoNotDisturbStatus(status: event["dnd_status"] as? [String: Any])
         itemUser = event["item_user"] as? String
